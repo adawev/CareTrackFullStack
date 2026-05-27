@@ -28,58 +28,63 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-900 text-white mb-4">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md">
+
+        {/* Logo + title */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-900 text-white mb-5">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">CareTrack</h1>
-          <p className="text-sm text-gray-500 mt-1">Create a new account</p>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create an account</h1>
+          <p className="text-sm text-gray-500">Join CareTrack Medical Record System</p>
         </div>
 
-        {/* Form card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
+        {/* Card */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-8 py-10">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Username</label>
               <Input
                 placeholder="johndoe"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="h-10 bg-gray-50 border-gray-200 focus:bg-white"
+                className="h-11"
                 required
               />
             </div>
-            <div className="space-y-1.5">
+
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Email address</label>
               <Input
                 type="email"
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="h-10 bg-gray-50 border-gray-200 focus:bg-white"
+                className="h-11"
                 required
               />
             </div>
-            <div className="space-y-1.5">
+
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Password</label>
               <Input
                 type="password"
                 placeholder="At least 8 characters"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="h-10 bg-gray-50 border-gray-200 focus:bg-white"
+                className="h-11"
                 required
               />
             </div>
-            <div className="space-y-1.5">
+
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Role</label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
-                <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
+                <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -89,18 +94,21 @@ export default function RegisterPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" className="w-full h-10 mt-2" disabled={loading}>
+
+            <Button type="submit" className="h-11 mt-2 text-base" disabled={loading}>
               {loading ? "Creating account…" : "Create account"}
             </Button>
+
           </form>
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="text-gray-900 font-medium hover:underline">
+          <Link to="/login" className="text-gray-900 font-semibold hover:underline">
             Sign in
           </Link>
         </p>
+
       </div>
     </div>
   );

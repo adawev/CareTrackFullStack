@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
@@ -23,6 +24,7 @@ function Sel({ value, onChange, options, placeholder }) {
 
 export default function PatientsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === "admin";
   const canEdit = isAdmin || user?.role === "clinician";
   const canCreate = isAdmin || user?.role === "receptionist";
@@ -109,15 +111,15 @@ export default function PatientsPage() {
             {patients.length === 0 ? (
               <tr><td colSpan={7} className="text-center py-12 text-gray-400">No patients found</td></tr>
             ) : patients.map(p => (
-              <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 font-medium text-gray-900">{p.first_name} {p.last_name}</td>
+              <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/patients/${p.id}`)}>
+                <td className="px-4 py-3 font-medium text-gray-900 hover:text-blue-600 transition-colors">{p.first_name} {p.last_name}</td>
                 <td className="px-4 py-3 text-gray-600">{p.date_of_birth?.slice(0, 10) || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{p.gender || "—"}</td>
                 <td className="px-4 py-3"><span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{p.blood_type || "—"}</span></td>
                 <td className="px-4 py-3 text-gray-600">{p.doctor_first_name ? `${p.doctor_first_name} ${p.doctor_last_name}` : "—"}</td>
                 <td className="px-4 py-3 text-gray-500">{p.phone || "—"}</td>
                 {(canEdit || isAdmin) && (
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center gap-1 justify-end">
                       {canEdit && <button onClick={() => openEdit(p)} className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><Pencil size={13} /></button>}
                       {isAdmin && <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 size={13} /></button>}

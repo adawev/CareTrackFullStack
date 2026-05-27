@@ -7,9 +7,9 @@ export async function getDiseases(req, res) {
       `SELECT d.*, p.first_name as patient_first_name, p.last_name as patient_last_name
        FROM diseases d
        LEFT JOIN patients p ON d.patient_id = p.id
-       WHERE d.icd_code LIKE ? OR d.description LIKE ? OR d.severity LIKE ?
+       WHERE d.icd_code LIKE ? OR d.description LIKE ? OR d.severity LIKE ? OR p.first_name LIKE ? OR p.last_name LIKE ?
        ORDER BY d.created_at DESC`,
-      [`%${search}%`, `%${search}%`, `%${search}%`]
+      [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`]
     );
     return res.status(200).json({ diseases: rows });
   } catch (err) {

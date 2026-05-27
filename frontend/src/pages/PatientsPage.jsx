@@ -28,6 +28,7 @@ export default function PatientsPage() {
   const isAdmin = user?.role === "admin";
   const canEdit = isAdmin || user?.role === "clinician";
   const canCreate = isAdmin || user?.role === "receptionist";
+  const canViewProfile = isAdmin || user?.role === "clinician";
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
@@ -111,8 +112,8 @@ export default function PatientsPage() {
             {patients.length === 0 ? (
               <tr><td colSpan={7} className="text-center py-12 text-gray-400">No patients found</td></tr>
             ) : patients.map(p => (
-              <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/patients/${p.id}`)}>
-                <td className="px-4 py-3 font-medium text-gray-900 hover:text-blue-600 transition-colors">{p.first_name} {p.last_name}</td>
+              <tr key={p.id} className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${canViewProfile ? "cursor-pointer" : ""}`} onClick={() => canViewProfile && navigate(`/patients/${p.id}`)}>
+                <td className={`px-4 py-3 font-medium text-gray-900 ${canViewProfile ? "hover:text-blue-600" : ""} transition-colors`}>{p.first_name} {p.last_name}</td>
                 <td className="px-4 py-3 text-gray-600">{p.date_of_birth?.slice(0, 10) || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{p.gender || "—"}</td>
                 <td className="px-4 py-3"><span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{p.blood_type || "—"}</span></td>

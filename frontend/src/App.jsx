@@ -43,7 +43,7 @@ function AppRoutes() {
                 <Route path="/doctors" element={<DoctorsPage />} />
                 <Route path="/patients" element={<PatientsPage />} />
                 <Route path="/diseases" element={<RoleRoute roles={["admin","clinician"]}><DiseasesPage /></RoleRoute>} />
-                <Route path="/patients/:id" element={<PatientProfilePage />} />
+                <Route path="/patients/:id" element={<RoleRoute roles={["admin","clinician"]}><PatientProfilePage /></RoleRoute>} />
               </Routes>
             </Layout>
           </ProtectedRoute>

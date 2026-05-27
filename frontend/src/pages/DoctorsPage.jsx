@@ -117,13 +117,13 @@ export default function DoctorsPage() {
             <h2 className="text-base font-semibold text-gray-900 mb-5">{editing ? "Edit Doctor" : "Add Doctor"}</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <F label="First Name" field="first_name" />
-                <F label="Last Name" field="last_name" />
+                {F({ label: "First Name", field: "first_name" })}
+                {F({ label: "Last Name", field: "last_name" })}
               </div>
-              <F label="Specialty" field="specialty" />
-              <F label="Department" field="department" />
-              <F label="Phone" field="phone" />
-              <F label="Email" field="email" type="email" />
+              {F({ label: "Specialty", field: "specialty" })}
+              {F({ label: "Department", field: "department" })}
+              {F({ label: "Phone", field: "phone" })}
+              {F({ label: "Email", field: "email", type: "email" })}
             </div>
             <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
               <button onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>

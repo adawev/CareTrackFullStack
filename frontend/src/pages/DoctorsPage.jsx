@@ -27,7 +27,7 @@ export default function DoctorsPage() {
   async function load() {
     try {
       const res = await api.get("/doctors", { params: { search } });
-      setDoctors(res.data);
+      setDoctors(res.data.doctors ?? res.data);
     } catch {
       toast.error("Failed to load doctors");
     }

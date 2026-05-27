@@ -35,8 +35,8 @@ export default function PatientsPage() {
         api.get("/patients", { params: { search } }),
         api.get("/doctors"),
       ]);
-      setPatients(p.data);
-      setDoctors(d.data);
+      setPatients(p.data.patients ?? p.data);
+      setDoctors(d.data.doctors ?? d.data);
     } catch {
       toast.error("Failed to load patients");
     }

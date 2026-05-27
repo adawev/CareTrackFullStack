@@ -46,8 +46,8 @@ export default function DiseasesPage() {
         api.get("/diseases", { params: { search } }),
         api.get("/patients"),
       ]);
-      setDiseases(d.data);
-      setPatients(p.data);
+      setDiseases(d.data.diseases ?? d.data);
+      setPatients(p.data.patients ?? p.data);
     } catch {
       toast.error("Failed to load diseases");
     }

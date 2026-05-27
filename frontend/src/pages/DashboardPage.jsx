@@ -27,7 +27,11 @@ export default function DashboardPage() {
           api.get("/patients"),
           api.get("/diseases"),
         ]);
-        setStats({ doctors: d.data.length, patients: p.data.length, diseases: ds.data.length });
+        setStats({
+          doctors: (d.data.doctors ?? d.data).length,
+          patients: (p.data.patients ?? p.data).length,
+          diseases: (ds.data.diseases ?? ds.data).length,
+        });
       } catch {}
     }
     load();

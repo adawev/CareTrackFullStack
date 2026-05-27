@@ -17,7 +17,14 @@ function ProtectedRoute({ children }) {
 
 function RoleRoute({ children, roles }) {
   const { user } = useAuth();
-  return roles.includes(user?.role) ? children : <Navigate to="/" replace />;
+  if (roles.includes(user?.role)) return children;
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="text-5xl mb-4">🚫</div>
+      <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
+      <p className="text-sm text-gray-500">You do not have permission to view this page.</p>
+    </div>
+  );
 }
 
 function AppRoutes() {

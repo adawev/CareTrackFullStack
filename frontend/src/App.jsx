@@ -51,6 +51,13 @@ function AppRoutes() {
                 <Route path="/patients" element={<PatientsPage />} />
                 <Route path="/diseases" element={<RoleRoute roles={["admin","clinician"]}><DiseasesPage /></RoleRoute>} />
                 <Route path="/patients/:id" element={<RoleRoute roles={["admin","clinician"]}><PatientProfilePage /></RoleRoute>} />
+                <Route path="*" element={
+                  <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <div className="text-5xl mb-4">404</div>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-2">Page Not Found</h2>
+                    <p className="text-sm text-gray-500">The page you are looking for does not exist.</p>
+                  </div>
+                } />
               </Routes>
             </Layout>
           </ProtectedRoute>

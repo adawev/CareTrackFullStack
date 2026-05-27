@@ -2,26 +2,33 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import { NativeSelect } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
 
 const EMPTY = { name: "", date_of_birth: "", gender: "", blood_type: "", phone: "", address: "", doctor_id: "" };
+const GENDERS = ["Male", "Female", "Other"];
+const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+function NativeSelect({ value, onChange, options, placeholder }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full h-9 px-3 pr-8 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-gray-400 appearance-none text-gray-900"
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+      <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+    </div>
+  );
+}
 
 export default function PatientsPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const canEdit = isAdmin || user?.role === "clinician";
   const canCreate = isAdmin || user?.role === "receptionist";
-
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
@@ -31,183 +38,119 @@ export default function PatientsPage() {
 
   async function load() {
     try {
-      const [p, d] = await Promise.all([
-        api.get("/patients", { params: { search } }),
-        api.get("/doctors"),
-      ]);
+      const [p, d] = await Promise.all([api.get("/patients", { params: { search } }), api.get("/doctors")]);
       setPatients(p.data.patients ?? p.data);
       setDoctors(d.data.doctors ?? d.data);
-    } catch {
-      toast.error("Failed to load patients");
-    }
+    } catch { toast.error("Failed to load"); }
   }
 
   useEffect(() => { load(); }, [search]);
 
-  function openCreate() {
-    setEditing(null);
-    setForm(EMPTY);
-    setOpen(true);
-  }
-
+  function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
   function openEdit(p) {
     setEditing(p);
-    setForm({
-      name: p.name, date_of_birth: p.date_of_birth?.slice(0, 10) || "",
-      gender: p.gender || "", blood_type: p.blood_type || "",
-      phone: p.phone || "", address: p.address || "",
-      doctor_id: p.doctor_id ? String(p.doctor_id) : "",
-    });
+    setForm({ name: p.name, date_of_birth: p.date_of_birth?.slice(0, 10) || "", gender: p.gender || "", blood_type: p.blood_type || "", phone: p.phone || "", address: p.address || "", doctor_id: p.doctor_id ? String(p.doctor_id) : "" });
     setOpen(true);
   }
 
   async function handleSave() {
     try {
       const payload = { ...form, doctor_id: form.doctor_id || null };
-      if (editing) {
-        await api.put(`/patients/${editing.id}`, payload);
-        toast.success("Patient updated");
-      } else {
-        await api.post("/patients", payload);
-        toast.success("Patient added");
-      }
-      setOpen(false);
-      load();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving patient");
-    }
+      editing ? await api.put(`/patients/${editing.id}`, payload) : await api.post("/patients", payload);
+      toast.success(editing ? "Patient updated" : "Patient added");
+      setOpen(false); load();
+    } catch (err) { toast.error(err.response?.data?.message || "Error"); }
   }
 
   async function handleDelete(id) {
     if (!confirm("Delete this patient?")) return;
-    try {
-      await api.delete(`/patients/${id}`);
-      toast.success("Patient deleted");
-      load();
-    } catch {
-      toast.error("Failed to delete patient");
-    }
+    try { await api.delete(`/patients/${id}`); toast.success("Deleted"); load(); }
+    catch { toast.error("Failed to delete"); }
   }
+
+  const f = (v) => setForm(prev => ({ ...prev, ...v }));
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Patients</h2>
+        <h1 className="text-xl font-semibold text-gray-900">Patients</h1>
         {canCreate && (
-          <Button size="sm" onClick={openCreate}>
-            <Plus size={16} className="mr-2" /> Add Patient
-          </Button>
+          <button onClick={openCreate} className="flex items-center gap-1.5 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+            <Plus size={15} /> Add Patient
+          </button>
         )}
       </div>
 
       <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <Input
-          className="pl-9"
-          placeholder="Search by name or blood type…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search patients…"
+          className="w-full h-9 pl-9 pr-3 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-gray-300 placeholder:text-gray-400" />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>DOB</TableHead>
-              <TableHead>Gender</TableHead>
-              <TableHead>Blood Type</TableHead>
-              <TableHead>Doctor</TableHead>
-              <TableHead>Phone</TableHead>
-              {(canEdit || isAdmin) && <TableHead className="w-24">Actions</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100">
+              {["Name", "Date of Birth", "Gender", "Blood Type", "Doctor", "Phone"].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">{h}</th>
+              ))}
+              {(canEdit || isAdmin) && <th className="px-4 py-3 w-20"></th>}
+            </tr>
+          </thead>
+          <tbody>
             {patients.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-400 py-8">
-                  No patients found
-                </TableCell>
-              </TableRow>
-            ) : (
-              patients.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.date_of_birth?.slice(0, 10) || "—"}</TableCell>
-                  <TableCell>
-                    {p.gender ? <Badge variant="outline">{p.gender}</Badge> : "—"}
-                  </TableCell>
-                  <TableCell>{p.blood_type || "—"}</TableCell>
-                  <TableCell>{p.doctor_name || "—"}</TableCell>
-                  <TableCell>{p.phone || "—"}</TableCell>
-                  {(canEdit || isAdmin) && (
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {canEdit && (
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
-                            <Pencil size={14} />
-                          </Button>
-                        )}
-                        {isAdmin && (
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}>
-                            <Trash2 size={14} className="text-red-500" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              <tr><td colSpan={7} className="text-center py-12 text-gray-400">No patients found</td></tr>
+            ) : patients.map(p => (
+              <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                <td className="px-4 py-3 text-gray-600">{p.date_of_birth?.slice(0, 10) || "—"}</td>
+                <td className="px-4 py-3 text-gray-600">{p.gender || "—"}</td>
+                <td className="px-4 py-3"><span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{p.blood_type || "—"}</span></td>
+                <td className="px-4 py-3 text-gray-600">{p.doctor_name || "—"}</td>
+                <td className="px-4 py-3 text-gray-500">{p.phone || "—"}</td>
+                {(canEdit || isAdmin) && (
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1 justify-end">
+                      {canEdit && <button onClick={() => openEdit(p)} className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><Pencil size={13} /></button>}
+                      {isAdmin && <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 size={13} /></button>}
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editing ? "Edit Patient" : "Add Patient"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Name</label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/40" onClick={() => setOpen(false)} />
+          <div className="relative z-50 bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-md mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={16} /></button>
+            <h2 className="text-base font-semibold text-gray-900 mb-5">{editing ? "Edit Patient" : "Add Patient"}</h2>
+            <div className="space-y-4">
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Name</label>
+                <input value={form.name} onChange={e => f({ name: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Date of Birth</label>
+                <input type="date" value={form.date_of_birth} onChange={e => f({ date_of_birth: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Gender</label>
+                <NativeSelect value={form.gender} onChange={v => f({ gender: v })} options={GENDERS.map(g => ({ value: g, label: g }))} placeholder="Select gender" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Blood Type</label>
+                <NativeSelect value={form.blood_type} onChange={v => f({ blood_type: v })} options={BLOOD_TYPES.map(b => ({ value: b, label: b }))} placeholder="Select blood type" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Assigned Doctor</label>
+                <NativeSelect value={form.doctor_id} onChange={v => f({ doctor_id: v })} options={doctors.map(d => ({ value: String(d.id), label: d.name }))} placeholder="Select doctor" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Phone</label>
+                <input value={form.phone} onChange={e => f({ phone: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
+              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Address</label>
+                <input value={form.address} onChange={e => f({ address: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Date of Birth</label>
-              <Input type="date" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Gender</label>
-              <NativeSelect value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}
-                options={[{value:"Male",label:"Male"},{value:"Female",label:"Female"},{value:"Other",label:"Other"}]} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Blood Type</label>
-              <NativeSelect value={form.blood_type} onValueChange={(v) => setForm({ ...form, blood_type: v })}
-                options={["A+","A-","B+","B-","AB+","AB-","O+","O-"].map(bt=>({value:bt,label:bt}))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Assigned Doctor</label>
-              <NativeSelect value={form.doctor_id} onValueChange={(v) => setForm({ ...form, doctor_id: v })}
-                options={doctors.map(d=>({value:String(d.id),label:d.name}))} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Phone</label>
-              <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Address</label>
-              <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
+              <button onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={handleSave} className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors">Save</button>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

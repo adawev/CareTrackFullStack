@@ -2,22 +2,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
 
 const EMPTY = { name: "", specialty: "", department: "", phone: "", email: "" };
+const FIELDS = ["name", "specialty", "department", "phone", "email"];
 
 export default function DoctorsPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -28,142 +20,115 @@ export default function DoctorsPage() {
     try {
       const res = await api.get("/doctors", { params: { search } });
       setDoctors(res.data.doctors ?? res.data);
-    } catch {
-      toast.error("Failed to load doctors");
-    }
+    } catch { toast.error("Failed to load"); }
   }
 
   useEffect(() => { load(); }, [search]);
 
-  function openCreate() {
-    setEditing(null);
-    setForm(EMPTY);
-    setOpen(true);
-  }
-
-  function openEdit(doc) {
-    setEditing(doc);
-    setForm({ name: doc.name, specialty: doc.specialty, department: doc.department, phone: doc.phone || "", email: doc.email || "" });
-    setOpen(true);
-  }
+  function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
+  function openEdit(d) { setEditing(d); setForm({ name: d.name, specialty: d.specialty, department: d.department, phone: d.phone || "", email: d.email || "" }); setOpen(true); }
 
   async function handleSave() {
     try {
-      if (editing) {
-        await api.put(`/doctors/${editing.id}`, form);
-        toast.success("Doctor updated");
-      } else {
-        await api.post("/doctors", form);
-        toast.success("Doctor added");
-      }
-      setOpen(false);
-      load();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving doctor");
-    }
+      editing ? await api.put(`/doctors/${editing.id}`, form) : await api.post("/doctors", form);
+      toast.success(editing ? "Doctor updated" : "Doctor added");
+      setOpen(false); load();
+    } catch (err) { toast.error(err.response?.data?.message || "Error"); }
   }
 
   async function handleDelete(id) {
     if (!confirm("Delete this doctor?")) return;
-    try {
-      await api.delete(`/doctors/${id}`);
-      toast.success("Doctor deleted");
-      load();
-    } catch {
-      toast.error("Failed to delete doctor");
-    }
+    try { await api.delete(`/doctors/${id}`); toast.success("Deleted"); load(); }
+    catch { toast.error("Failed to delete"); }
   }
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Doctors</h2>
+        <h1 className="text-xl font-semibold text-gray-900">Doctors</h1>
         {isAdmin && (
-          <Button size="sm" onClick={openCreate}>
-            <Plus size={16} className="mr-2" /> Add Doctor
-          </Button>
+          <button onClick={openCreate} className="flex items-center gap-1.5 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+            <Plus size={15} /> Add Doctor
+          </button>
         )}
       </div>
 
+      {/* Search */}
       <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <Input
-          className="pl-9"
-          placeholder="Search by name, specialty or department…"
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name, specialty or department…"
+          className="w-full h-9 pl-9 pr-3 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-gray-300 placeholder:text-gray-400"
         />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Specialty</TableHead>
-              <TableHead>Department</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Email</TableHead>
-              {isAdmin && <TableHead className="w-24">Actions</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      {/* Table */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Name</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Specialty</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Department</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Phone</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Email</th>
+              {isAdmin && <th className="px-4 py-3 w-20"></th>}
+            </tr>
+          </thead>
+          <tbody>
             {doctors.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-gray-400 py-8">
-                  No doctors found
-                </TableCell>
-              </TableRow>
-            ) : (
-              doctors.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell className="font-medium">{doc.name}</TableCell>
-                  <TableCell>{doc.specialty}</TableCell>
-                  <TableCell>{doc.department}</TableCell>
-                  <TableCell>{doc.phone || "—"}</TableCell>
-                  <TableCell>{doc.email || "—"}</TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(doc)}>
-                          <Pencil size={14} />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(doc.id)}>
-                          <Trash2 size={14} className="text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              <tr><td colSpan={6} className="text-center py-12 text-gray-400">No doctors found</td></tr>
+            ) : doctors.map(doc => (
+              <tr key={doc.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">{doc.name}</td>
+                <td className="px-4 py-3 text-gray-600">{doc.specialty}</td>
+                <td className="px-4 py-3 text-gray-600">{doc.department}</td>
+                <td className="px-4 py-3 text-gray-500">{doc.phone || "—"}</td>
+                <td className="px-4 py-3 text-gray-500">{doc.email || "—"}</td>
+                {isAdmin && (
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1 justify-end">
+                      <button onClick={() => openEdit(doc)} className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><Pencil size={13} /></button>
+                      <button onClick={() => handleDelete(doc.id)} className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 size={13} /></button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editing ? "Edit Doctor" : "Add Doctor"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            {["name", "specialty", "department", "phone", "email"].map((field) => (
-              <div key={field} className="space-y-1">
-                <label className="text-sm font-medium capitalize">{field}</label>
-                <Input
-                  value={form[field]}
-                  onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                  placeholder={field}
-                />
-              </div>
-            ))}
+      {/* Modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/40" onClick={() => setOpen(false)} />
+          <div className="relative z-50 bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-md mx-4 p-6">
+            <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={16} /></button>
+            <h2 className="text-base font-semibold text-gray-900 mb-5">{editing ? "Edit Doctor" : "Add Doctor"}</h2>
+            <div className="space-y-4">
+              {FIELDS.map(f => (
+                <div key={f}>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5 capitalize">{f}</label>
+                  <input
+                    value={form[f]}
+                    onChange={e => setForm({ ...form, [f]: e.target.value })}
+                    placeholder={f}
+                    className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
+              <button onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={handleSave} className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors">Save</button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

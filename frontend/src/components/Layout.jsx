@@ -1,8 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Stethoscope, Users, Activity, LayoutDashboard, LogOut } from "lucide-react";
+import { LayoutDashboard, Stethoscope, Users, Activity, LogOut } from "lucide-react";
 
-const navItems = [
+const nav = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/doctors", label: "Doctors", icon: Stethoscope },
   { path: "/patients", label: "Patients", icon: Users },
@@ -14,33 +14,28 @@ export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  function handleLogout() {
-    logout();
-    navigate("/login");
-  }
-
   return (
-    <div style={{ display: "flex", height: "100vh", backgroundColor: "#f8fafc" }}>
-      <aside style={{ width: "220px", flexShrink: 0, backgroundColor: "#fff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "20px 16px 16px", borderBottom: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: "15px", fontWeight: "600", color: "#0f172a" }}>CareTrack</div>
-          <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>Medical Record System</div>
+    <div className="flex h-screen bg-gray-50">
+      <aside className="w-56 shrink-0 flex flex-col bg-white border-r border-gray-200">
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-gray-100">
+          <div className="text-sm font-semibold text-gray-900">CareTrack</div>
+          <div className="text-xs text-gray-400 mt-0.5">Medical Records</div>
         </div>
 
-        <nav style={{ flex: 1, padding: "8px" }}>
-          {navItems.map(({ path, label, icon: Icon }) => {
+        {/* Nav */}
+        <nav className="flex-1 p-3 space-y-0.5">
+          {nav.map(({ path, label, icon: Icon }) => {
             const active = location.pathname === path;
             return (
               <Link
                 key={path}
                 to={path}
-                style={{
-                  display: "flex", alignItems: "center", gap: "8px",
-                  padding: "8px 10px", borderRadius: "6px", marginBottom: "2px",
-                  fontSize: "13px", fontWeight: "500", textDecoration: "none",
-                  backgroundColor: active ? "#f1f5f9" : "transparent",
-                  color: active ? "#0f172a" : "#64748b",
-                }}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors no-underline ${
+                  active
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
               >
                 <Icon size={15} />
                 {label}
@@ -49,25 +44,26 @@ export default function Layout({ children }) {
           })}
         </nav>
 
-        <div style={{ padding: "12px 16px", borderTop: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: "13px", fontWeight: "500", color: "#0f172a" }}>{user?.username}</div>
-          <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "capitalize", marginBottom: "10px" }}>{user?.role}</div>
+        {/* User */}
+        <div className="p-3 border-t border-gray-100">
+          <div className="px-3 mb-2">
+            <div className="text-sm font-medium text-gray-900">{user?.username}</div>
+            <div className="text-xs text-gray-400 capitalize">{user?.role}</div>
+          </div>
           <button
-            onClick={handleLogout}
-            style={{
-              display: "flex", alignItems: "center", gap: "6px", width: "100%",
-              padding: "7px 10px", borderRadius: "6px", border: "1px solid #e2e8f0",
-              backgroundColor: "#fff", color: "#64748b", fontSize: "13px", cursor: "pointer",
-            }}
+            onClick={() => { logout(); navigate("/login"); }}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
           >
-            <LogOut size={13} />
-            Logout
+            <LogOut size={14} />
+            Sign out
           </button>
         </div>
       </aside>
 
-      <main style={{ flex: 1, overflow: "auto", padding: "32px" }}>
-        {children}
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-6xl mx-auto px-8 py-8">
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -2,48 +2,40 @@ import { useEffect, useState } from "react";
 import { Stethoscope, Users, Activity } from "lucide-react";
 import api from "@/services/api";
 
-function StatCard({ title, value, icon: Icon, color }) {
-  return (
-    <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "20px 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-        <span style={{ fontSize: "13px", fontWeight: "500", color: "#64748b" }}>{title}</span>
-        <div style={{ width: "36px", height: "36px", borderRadius: "8px", backgroundColor: color + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon size={16} color={color} />
-        </div>
-      </div>
-      <div style={{ fontSize: "28px", fontWeight: "700", color: "#0f172a" }}>{value}</div>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
   const [stats, setStats] = useState({ doctors: 0, patients: 0, diseases: 0 });
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [d, p, ds] = await Promise.all([
-          api.get("/doctors"),
-          api.get("/patients"),
-          api.get("/diseases"),
-        ]);
-        setStats({
-          doctors: (d.data.doctors ?? d.data).length,
-          patients: (p.data.patients ?? p.data).length,
-          diseases: (ds.data.diseases ?? ds.data).length,
-        });
-      } catch {}
-    }
-    load();
+    Promise.all([api.get("/doctors"), api.get("/patients"), api.get("/diseases")])
+      .then(([d, p, ds]) => setStats({
+        doctors: (d.data.doctors ?? d.data).length,
+        patients: (p.data.patients ?? p.data).length,
+        diseases: (ds.data.diseases ?? ds.data).length,
+      }))
+      .catch(() => {});
   }, []);
+
+  const cards = [
+    { label: "Total Doctors", value: stats.doctors, icon: Stethoscope, bg: "bg-blue-50", color: "text-blue-600" },
+    { label: "Total Patients", value: stats.patients, icon: Users, bg: "bg-emerald-50", color: "text-emerald-600" },
+    { label: "Total Diseases", value: stats.diseases, icon: Activity, bg: "bg-amber-50", color: "text-amber-600" },
+  ];
 
   return (
     <div>
-      <h1 style={{ fontSize: "20px", fontWeight: "600", color: "#0f172a", marginBottom: "24px" }}>Dashboard</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-        <StatCard title="Total Doctors" value={stats.doctors} icon={Stethoscope} color="#3b82f6" />
-        <StatCard title="Total Patients" value={stats.patients} icon={Users} color="#10b981" />
-        <StatCard title="Total Diseases" value={stats.diseases} icon={Activity} color="#f59e0b" />
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Dashboard</h1>
+      <div className="grid grid-cols-3 gap-4">
+        {cards.map(({ label, value, icon: Icon, bg, color }) => (
+          <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-gray-500">{label}</span>
+              <div className={`${bg} rounded-lg p-2`}>
+                <Icon size={16} className={color} />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-gray-900">{value}</div>
+          </div>
+        ))}
       </div>
     </div>
   );

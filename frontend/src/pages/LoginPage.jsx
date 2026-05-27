@@ -55,7 +55,25 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p style={{ textAlign: "center", fontSize: "13px", color: "#64748b", marginTop: "16px" }}>
+        <div style={{ marginTop: "16px" }}>
+          <p style={{ fontSize: "11px", color: "#94a3b8", textAlign: "center", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Quick access</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {[
+              { label: "Admin", email: "admin@admin.com", password: "admin" },
+              { label: "Clinician", email: "clinician@clinician.com", password: "clinician" },
+              { label: "Receptionist", email: "receptionist@receptionist.com", password: "receptionist" },
+            ].map(({ label, email, password }) => (
+              <button key={label} type="button"
+                onClick={() => setForm({ email, password })}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "8px 12px", border: "1px solid #e2e8f0", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "13px", color: "#0f172a" }}>
+                <span style={{ fontWeight: "500" }}>{label}</span>
+                <span style={{ color: "#94a3b8", fontFamily: "monospace" }}>{email}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p style={{ textAlign: "center", fontSize: "13px", color: "#64748b", marginTop: "12px" }}>
           No account?{" "}
           <Link to="/register" style={{ color: "#0f172a", fontWeight: "500" }}>Register</Link>
         </p>

@@ -28,6 +28,20 @@
   *, *::before, *::after {
     box-sizing: border-box;
   }
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
   body {
     font-family: 'Geist Variable', system-ui, sans-serif;
     background-color: #f8fafc;

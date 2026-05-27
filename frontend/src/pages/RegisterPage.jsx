@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 
-export default function LoginPage() {
-  const { login } = useAuth();
+export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "", role: "receptionist" });
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post("/auth/login", form);
-      login(res.data.user, res.data.token);
-      navigate("/");
+      await api.post("/auth/register", form);
+      toast.success("Account created. Please sign in.");
+      navigate("/login");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -37,12 +38,22 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold text-gray-900">CareTrack</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to your account</p>
+          <p className="text-sm text-gray-500 mt-1">Create a new account</p>
         </div>
 
         {/* Form card */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700">Username</label>
+              <Input
+                placeholder="johndoe"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                className="h-10 bg-gray-50 border-gray-200 focus:bg-white"
+                required
+              />
+            </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700">Email address</label>
               <Input
@@ -58,23 +69,36 @@ export default function LoginPage() {
               <label className="text-sm font-medium text-gray-700">Password</label>
               <Input
                 type="password"
-                placeholder="Enter your password"
+                placeholder="At least 8 characters"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="h-10 bg-gray-50 border-gray-200 focus:bg-white"
                 required
               />
             </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700">Role</label>
+              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
+                <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="clinician">Clinician</SelectItem>
+                  <SelectItem value="receptionist">Receptionist</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button type="submit" className="w-full h-10 mt-2" disabled={loading}>
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Creating account…" : "Create account"}
             </Button>
           </form>
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-gray-900 font-medium hover:underline">
-            Create one
+          Already have an account?{" "}
+          <Link to="/login" className="text-gray-900 font-medium hover:underline">
+            Sign in
           </Link>
         </p>
       </div>

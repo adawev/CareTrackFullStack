@@ -4,18 +4,15 @@ import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
 
-const EMPTY = { name: "", date_of_birth: "", gender: "", blood_type: "", phone: "", address: "", doctor_id: "" };
+const EMPTY = { first_name: "", last_name: "", date_of_birth: "", gender: "", blood_type: "", phone: "", email: "", address: "", doctor_id: "" };
 const GENDERS = ["Male", "Female", "Other"];
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-function NativeSelect({ value, onChange, options, placeholder }) {
+function Sel({ value, onChange, options, placeholder }) {
   return (
     <div className="relative">
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-full h-9 px-3 pr-8 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-gray-400 appearance-none text-gray-900"
-      >
+      <select value={value} onChange={e => onChange(e.target.value)}
+        className="w-full h-9 px-3 pr-8 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-gray-400 appearance-none">
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -49,7 +46,7 @@ export default function PatientsPage() {
   function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
   function openEdit(p) {
     setEditing(p);
-    setForm({ name: p.name, date_of_birth: p.date_of_birth?.slice(0, 10) || "", gender: p.gender || "", blood_type: p.blood_type || "", phone: p.phone || "", address: p.address || "", doctor_id: p.doctor_id ? String(p.doctor_id) : "" });
+    setForm({ first_name: p.first_name, last_name: p.last_name, date_of_birth: p.date_of_birth?.slice(0, 10) || "", gender: p.gender || "", blood_type: p.blood_type || "", phone: p.phone || "", email: p.email || "", address: p.address || "", doctor_id: p.doctor_id ? String(p.doctor_id) : "" });
     setOpen(true);
   }
 
@@ -68,7 +65,14 @@ export default function PatientsPage() {
     catch { toast.error("Failed to delete"); }
   }
 
-  const f = (v) => setForm(prev => ({ ...prev, ...v }));
+  const f = v => setForm(prev => ({ ...prev, ...v }));
+  const inp = (label, field, type = "text") => (
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1.5">{label}</label>
+      <input type={type} value={form[field]} onChange={e => f({ [field]: e.target.value })}
+        className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" />
+    </div>
+  );
 
   return (
     <div>
@@ -91,10 +95,10 @@ export default function PatientsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
-              {["Name", "Date of Birth", "Gender", "Blood Type", "Doctor", "Phone"].map(h => (
+              {["Name", "DOB", "Gender", "Blood", "Doctor", "Phone"].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">{h}</th>
               ))}
-              {(canEdit || isAdmin) && <th className="px-4 py-3 w-20"></th>}
+              {(canEdit || isAdmin) && <th className="px-4 py-3 w-20" />}
             </tr>
           </thead>
           <tbody>
@@ -102,11 +106,11 @@ export default function PatientsPage() {
               <tr><td colSpan={7} className="text-center py-12 text-gray-400">No patients found</td></tr>
             ) : patients.map(p => (
               <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
+                <td className="px-4 py-3 font-medium text-gray-900">{p.first_name} {p.last_name}</td>
                 <td className="px-4 py-3 text-gray-600">{p.date_of_birth?.slice(0, 10) || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{p.gender || "—"}</td>
                 <td className="px-4 py-3"><span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{p.blood_type || "—"}</span></td>
-                <td className="px-4 py-3 text-gray-600">{p.doctor_name || "—"}</td>
+                <td className="px-4 py-3 text-gray-600">{p.doctor_first_name ? `${p.doctor_first_name} ${p.doctor_last_name}` : "—"}</td>
                 <td className="px-4 py-3 text-gray-500">{p.phone || "—"}</td>
                 {(canEdit || isAdmin) && (
                   <td className="px-4 py-3">
@@ -129,20 +133,26 @@ export default function PatientsPage() {
             <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={16} /></button>
             <h2 className="text-base font-semibold text-gray-900 mb-5">{editing ? "Edit Patient" : "Add Patient"}</h2>
             <div className="space-y-4">
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Name</label>
-                <input value={form.name} onChange={e => f({ name: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Date of Birth</label>
-                <input type="date" value={form.date_of_birth} onChange={e => f({ date_of_birth: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Gender</label>
-                <NativeSelect value={form.gender} onChange={v => f({ gender: v })} options={GENDERS.map(g => ({ value: g, label: g }))} placeholder="Select gender" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Blood Type</label>
-                <NativeSelect value={form.blood_type} onChange={v => f({ blood_type: v })} options={BLOOD_TYPES.map(b => ({ value: b, label: b }))} placeholder="Select blood type" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Assigned Doctor</label>
-                <NativeSelect value={form.doctor_id} onChange={v => f({ doctor_id: v })} options={doctors.map(d => ({ value: String(d.id), label: d.name }))} placeholder="Select doctor" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Phone</label>
-                <input value={form.phone} onChange={e => f({ phone: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
-              <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Address</label>
-                <input value={form.address} onChange={e => f({ address: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                {inp("First Name", "first_name")}
+                {inp("Last Name", "last_name")}
+              </div>
+              {inp("Date of Birth", "date_of_birth", "date")}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Gender</label>
+                <Sel value={form.gender} onChange={v => f({ gender: v })} options={GENDERS.map(g => ({ value: g, label: g }))} placeholder="Select gender" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Blood Type</label>
+                <Sel value={form.blood_type} onChange={v => f({ blood_type: v })} options={BLOOD_TYPES.map(b => ({ value: b, label: b }))} placeholder="Select blood type" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Assigned Doctor</label>
+                <Sel value={form.doctor_id} onChange={v => f({ doctor_id: v })} options={doctors.map(d => ({ value: String(d.id), label: `${d.first_name} ${d.last_name}` }))} placeholder="Select doctor" />
+              </div>
+              {inp("Phone", "phone")}
+              {inp("Email", "email", "email")}
+              {inp("Address", "address")}
             </div>
             <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
               <button onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>

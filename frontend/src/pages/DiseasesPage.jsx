@@ -103,7 +103,7 @@ export default function DiseasesPage() {
             ) : diseases.map(d => (
               <tr key={d.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 font-medium text-gray-900">{d.name}</td>
-                <td className="px-4 py-3 text-gray-600">{d.patient_name || "—"}</td>
+                <td className="px-4 py-3 text-gray-600">{d.patient_first_name ? `${d.patient_first_name} ${d.patient_last_name}` : "—"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${SEVERITY_STYLE[d.severity] || "bg-gray-100 text-gray-600"}`}>{d.severity}</span></td>
                 <td className="px-4 py-3"><span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[d.status] || "bg-gray-100 text-gray-600"}`}>{d.status}</span></td>
                 <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{d.description || "—"}</td>
@@ -131,7 +131,7 @@ export default function DiseasesPage() {
               <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Disease Name</label>
                 <input value={form.name} onChange={e => f({ name: e.target.value })} className="w-full h-9 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400" /></div>
               <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Patient</label>
-                <NativeSelect value={form.patient_id} onChange={v => f({ patient_id: v })} options={patients.map(p => ({ value: String(p.id), label: p.name }))} placeholder="Select patient" /></div>
+                <NativeSelect value={form.patient_id} onChange={v => f({ patient_id: v })} options={patients.map(p => ({ value: String(p.id), label: `${p.first_name} ${p.last_name}` }))} placeholder="Select patient" /></div>
               <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Severity</label>
                 <NativeSelect value={form.severity} onChange={v => f({ severity: v })} options={["Mild","Moderate","Severe"].map(s => ({ value: s, label: s }))} /></div>
               <div><label className="block text-xs font-medium text-gray-600 mb-1.5">Status</label>

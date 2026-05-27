@@ -1,0 +1,53 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import Layout from "@/components/Layout";
+import LoginPage from "@/pages/LoginPage";
+import DashboardPage from "@/pages/DashboardPage";
+import DoctorsPage from "@/pages/DoctorsPage";
+import PatientsPage from "@/pages/PatientsPage";
+import DiseasesPage from "@/pages/DiseasesPage";
+
+function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" replace />;
+}
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/doctors" element={<DoctorsPage />} />
+                <Route path="/patients" element={<PatientsPage />} />
+                <Route path="/diseases" element={<DiseasesPage />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+        <Toaster />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

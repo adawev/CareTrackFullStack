@@ -10,9 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 
@@ -182,36 +180,18 @@ export default function PatientsPage() {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Gender</label>
-              <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}>
-                <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}
+                options={[{value:"Male",label:"Male"},{value:"Female",label:"Female"},{value:"Other",label:"Other"}]} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Blood Type</label>
-              <Select value={form.blood_type} onValueChange={(v) => setForm({ ...form, blood_type: v })}>
-                <SelectTrigger><SelectValue placeholder="Select blood type" /></SelectTrigger>
-                <SelectContent>
-                  {["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((bt) => (
-                    <SelectItem key={bt} value={bt}>{bt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.blood_type} onValueChange={(v) => setForm({ ...form, blood_type: v })}
+                options={["A+","A-","B+","B-","AB+","AB-","O+","O-"].map(bt=>({value:bt,label:bt}))} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Assigned Doctor</label>
-              <Select value={form.doctor_id} onValueChange={(v) => setForm({ ...form, doctor_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
-                <SelectContent>
-                  {doctors.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.doctor_id} onValueChange={(v) => setForm({ ...form, doctor_id: v })}
+                options={doctors.map(d=>({value:String(d.id),label:d.name}))} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Phone</label>

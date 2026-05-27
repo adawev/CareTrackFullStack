@@ -10,9 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 
@@ -189,36 +187,18 @@ export default function DiseasesPage() {
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Patient</label>
-              <Select value={form.patient_id} onValueChange={(v) => setForm({ ...form, patient_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                <SelectContent>
-                  {patients.map((p) => (
-                    <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.patient_id} onValueChange={(v) => setForm({ ...form, patient_id: v })}
+                options={patients.map(p=>({value:String(p.id),label:p.name}))} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Severity</label>
-              <Select value={form.severity} onValueChange={(v) => setForm({ ...form, severity: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["Mild", "Moderate", "Severe"].map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.severity} onValueChange={(v) => setForm({ ...form, severity: v })}
+                options={["Mild","Moderate","Severe"].map(s=>({value:s,label:s}))} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Status</label>
-              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["Active", "Recovering", "Resolved"].map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}
+                options={["Active","Recovering","Resolved"].map(s=>({value:s,label:s}))} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Description</label>

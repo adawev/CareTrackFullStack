@@ -4,9 +4,13 @@ import { toast } from "sonner";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/select";
+
+const ROLES = [
+  { value: "admin", label: "Admin" },
+  { value: "clinician", label: "Clinician" },
+  { value: "receptionist", label: "Receptionist" },
+];
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -56,14 +60,7 @@ export default function RegisterPage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <label style={{ fontSize: "13px", fontWeight: "500", color: "#0f172a" }}>Role</label>
-              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="clinician">Clinician</SelectItem>
-                  <SelectItem value="receptionist">Receptionist</SelectItem>
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.role} onValueChange={(v) => setForm({ ...form, role: v })} options={ROLES} />
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

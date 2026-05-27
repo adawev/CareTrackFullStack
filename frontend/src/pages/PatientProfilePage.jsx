@@ -23,7 +23,7 @@ export default function PatientProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/patients/${id}`)
+    api.get(`/patients/${id}/profile`)
       .then(res => {
         setPatient(res.data.patient);
         setDiseases(res.data.diseases || []);

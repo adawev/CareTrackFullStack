@@ -15,6 +15,11 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function RoleRoute({ children, roles }) {
+  const { user } = useAuth();
+  return roles.includes(user?.role) ? children : <Navigate to="/" replace />;
+}
+
 function AppRoutes() {
   const { user } = useAuth();
 
@@ -37,7 +42,7 @@ function AppRoutes() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/doctors" element={<DoctorsPage />} />
                 <Route path="/patients" element={<PatientsPage />} />
-                <Route path="/diseases" element={<DiseasesPage />} />
+                <Route path="/diseases" element={<RoleRoute roles={["admin","clinician"]}><DiseasesPage /></RoleRoute>} />
                 <Route path="/patients/:id" element={<PatientProfilePage />} />
               </Routes>
             </Layout>

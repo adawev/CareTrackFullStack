@@ -2,17 +2,18 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { LayoutDashboard, Stethoscope, Users, Activity, LogOut } from "lucide-react";
 
-const nav = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/doctors", label: "Doctors", icon: Stethoscope },
-  { path: "/patients", label: "Patients", icon: Users },
-  { path: "/diseases", label: "Diseases", icon: Activity },
-];
-
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const isReceptionist = user?.role === "receptionist";
+
+  const nav = [
+    { path: "/", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/doctors", label: "Doctors", icon: Stethoscope },
+    { path: "/patients", label: "Patients", icon: Users },
+    ...(!isReceptionist ? [{ path: "/diseases", label: "Diseases", icon: Activity }] : []),
+  ];
 
   return (
     <div className="flex h-screen bg-gray-50">

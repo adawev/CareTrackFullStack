@@ -42,13 +42,13 @@ export async function getSinglePatient(req, res) {
 
 export async function createPatient(req, res) {
   try {
-    const { first_name, last_name, date_of_birth, gender, phone, email, address, doctor_id } = req.body;
+    const { first_name, last_name, date_of_birth, gender, blood_type, phone, email, address, doctor_id } = req.body;
     if (!first_name || !last_name || !date_of_birth || !gender || !phone || !doctor_id) {
       return res.status(400).json({ message: "Required fields are missing." });
     }
     const [result] = await pool.query(
-      "INSERT INTO patients (first_name, last_name, date_of_birth, gender, phone, email, address, doctor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [first_name, last_name, date_of_birth, gender, phone, email, address, doctor_id]
+      "INSERT INTO patients (first_name, last_name, date_of_birth, gender, blood_type, phone, email, address, doctor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, date_of_birth, gender, blood_type || null, phone, email, address, doctor_id]
     );
     return res.status(201).json({ message: "Patient created successfully.", id: result.insertId });
   } catch (err) {
@@ -59,7 +59,7 @@ export async function createPatient(req, res) {
 export async function updatePatient(req, res) {
   try {
     const { id } = req.params;
-    const { first_name, last_name, date_of_birth, gender, phone, email, address, doctor_id } = req.body;
+    const { first_name, last_name, date_of_birth, gender, blood_type, phone, email, address, doctor_id } = req.body;
 
     const [existing] = await pool.query("SELECT id FROM patients WHERE id = ?", [id]);
     if (existing.length === 0) {
@@ -67,8 +67,8 @@ export async function updatePatient(req, res) {
     }
 
     await pool.query(
-      "UPDATE patients SET first_name=?, last_name=?, date_of_birth=?, gender=?, phone=?, email=?, address=?, doctor_id=? WHERE id=?",
-      [first_name, last_name, date_of_birth, gender, phone, email, address, doctor_id, id]
+      "UPDATE patients SET first_name=?, last_name=?, date_of_birth=?, gender=?, blood_type=?, phone=?, email=?, address=?, doctor_id=? WHERE id=?",
+      [first_name, last_name, date_of_birth, gender, blood_type || null, phone, email, address, doctor_id, id]
     );
     return res.status(200).json({ message: "Patient updated successfully." });
   } catch (err) {

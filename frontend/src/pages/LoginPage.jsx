@@ -27,58 +27,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f9fafb", padding: "0 16px" }}>
+      <div style={{ width: "100%", maxWidth: "420px" }}>
 
-        {/* Logo + title */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-900 text-white mb-5">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "56px", height: "56px", borderRadius: "16px", backgroundColor: "#111827", marginBottom: "20px" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Welcome back</h1>
-          <p className="text-sm text-gray-500">Sign in to CareTrack</p>
+          <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#111827", margin: "0 0 6px" }}>Welcome back</h1>
+          <p style={{ fontSize: "14px", color: "#6b7280", margin: 0 }}>Sign in to CareTrack</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-8 py-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div style={{ backgroundColor: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", boxShadow: "0 1px 8px rgba(0,0,0,0.06)", padding: "36px 36px 32px" }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Email address</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "14px", fontWeight: "500", color: "#374151" }}>Email address</label>
               <Input
                 type="email"
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="h-11"
+                style={{ height: "44px" }}
                 required
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-gray-700">Password</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password</label>
               <Input
                 type="password"
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="h-11"
+                style={{ height: "44px" }}
                 required
               />
             </div>
 
-            <Button type="submit" className="h-11 mt-2 text-base" disabled={loading}>
+            <Button type="submit" style={{ height: "44px", fontSize: "15px", marginTop: "4px" }} disabled={loading}>
               {loading ? "Signing in…" : "Sign in"}
             </Button>
 
           </form>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p style={{ textAlign: "center", fontSize: "14px", color: "#6b7280", marginTop: "24px" }}>
           Don't have an account?{" "}
-          <Link to="/register" className="text-gray-900 font-semibold hover:underline">
+          <Link to="/register" style={{ color: "#111827", fontWeight: "600", textDecoration: "none" }}>
             Create one
           </Link>
         </p>

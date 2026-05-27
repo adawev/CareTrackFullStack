@@ -51,6 +51,10 @@ export default function PatientsPage() {
   }
 
   async function handleSave() {
+    if (!form.first_name || !form.last_name || !form.date_of_birth || !form.gender || !form.phone || !form.doctor_id) {
+      toast.error("Please fill in all required fields including doctor");
+      return;
+    }
     try {
       const payload = { ...form, doctor_id: form.doctor_id || null };
       editing ? await api.put(`/patients/${editing.id}`, payload) : await api.post("/patients", payload);

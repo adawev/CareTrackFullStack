@@ -92,7 +92,7 @@ export default function DiseasesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-semibold text-gray-900">Diseases</h1>
-        {canEdit && (
+        {isAdmin && (
           <button onClick={openCreate} className="flex items-center gap-1.5 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
             <Plus size={15} /> Add Disease
           </button>

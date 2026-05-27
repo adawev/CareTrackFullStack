@@ -1,13 +1,22 @@
 import pool from "../config/db.js";
+import { log } from "../utils/audit.js";
 
 export async function getDoctors(req, res) {
   try {
     const search = req.query.search || "";
-    const [rows] = await pool.query(
-      `SELECT * FROM doctors WHERE first_name LIKE ? OR last_name LIKE ? OR specialty LIKE ? OR department LIKE ? ORDER BY created_at DESC`,
-      [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`]
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 10);
+    const offset = (page - 1) * limit;
+    const like = `%${search}%`;
+    const [[{ total }]] = await pool.query(
+      `SELECT COUNT(*) as total FROM doctors WHERE first_name LIKE ? OR last_name LIKE ? OR specialty LIKE ? OR department LIKE ?`,
+      [like, like, like, like]
     );
-    return res.status(200).json({ doctors: rows });
+    const [rows] = await pool.query(
+      `SELECT * FROM doctors WHERE first_name LIKE ? OR last_name LIKE ? OR specialty LIKE ? OR department LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      [like, like, like, like, limit, offset]
+    );
+    return res.status(200).json({ doctors: rows, total, page, limit, pages: Math.ceil(total / limit) });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error.", error: err.message });
   }
@@ -36,6 +45,7 @@ export async function createDoctor(req, res) {
       "INSERT INTO doctors (first_name, last_name, specialty, department, phone, email) VALUES (?, ?, ?, ?, ?, ?)",
       [first_name, last_name, specialty, department, phone, email]
     );
+    await log(req, "CREATE", "doctor", result.insertId);
     return res.status(201).json({ message: "Doctor created successfully.", id: result.insertId });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error.", error: err.message });
@@ -56,6 +66,7 @@ export async function updateDoctor(req, res) {
       "UPDATE doctors SET first_name=?, last_name=?, specialty=?, department=?, phone=?, email=? WHERE id=?",
       [first_name, last_name, specialty, department, phone, email, id]
     );
+    await log(req, "UPDATE", "doctor", id);
     return res.status(200).json({ message: "Doctor updated successfully." });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error.", error: err.message });
@@ -70,6 +81,7 @@ export async function deleteDoctor(req, res) {
       return res.status(404).json({ message: "Doctor not found." });
     }
     await pool.query("DELETE FROM doctors WHERE id = ?", [id]);
+    await log(req, "DELETE", "doctor", id);
     return res.status(200).json({ message: "Doctor deleted successfully." });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error.", error: err.message });

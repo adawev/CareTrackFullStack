@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
+import Pagination from "@/components/Pagination";
 
 const EMPTY = { icd_code: "", description: "", severity: "mild", status: "active", patient_id: "", diagnosis_date: "" };
 
@@ -37,19 +38,26 @@ export default function DiseasesPage() {
   const [diseases, setDiseases] = useState([]);
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
 
   async function load() {
     try {
-      const [d, p] = await Promise.all([api.get("/diseases", { params: { search } }), api.get("/patients")]);
+      const [d, p] = await Promise.all([
+        api.get("/diseases", { params: { search, page, limit: 10 } }),
+        api.get("/patients", { params: { limit: 100 } }),
+      ]);
       setDiseases(d.data.diseases ?? d.data);
+      setPages(d.data.pages ?? 1);
       setPatients(p.data.patients ?? p.data);
     } catch { toast.error("Failed to load"); }
   }
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { load(); }, [search, page]);
 
   function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
   function openEdit(d) {
@@ -139,6 +147,7 @@ export default function DiseasesPage() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pages={pages} onChange={setPage} />
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -165,7 +174,11 @@ export default function DiseasesPage() {
                   options={[{ value: "active", label: "Active" }, { value: "chronic", label: "Chronic" }, { value: "resolved", label: "Resolved" }]} />
               </div>
               {inp("Diagnosis Date", "diagnosis_date", "date")}
-              {inp("Description", "description")}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Description</label>
+                <textarea value={form.description} onChange={e => f({ description: e.target.value })} rows={3}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-400 resize-none" />
+              </div>
             </div>
             <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
               <button onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>

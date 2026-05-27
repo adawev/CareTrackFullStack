@@ -17,7 +17,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await api.post("/auth/login", form);
-      login(res.data.user, res.data.token);
+      login(res.data.user, res.data.token, res.data.refreshToken);
       navigate("/");
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed");

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
+import Pagination from "@/components/Pagination";
 
 const EMPTY = { first_name: "", last_name: "", specialty: "", department: "", phone: "", email: "" };
 
@@ -11,18 +12,22 @@ export default function DoctorsPage() {
   const isAdmin = user?.role === "admin";
   const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
 
   async function load() {
     try {
-      const res = await api.get("/doctors", { params: { search } });
+      const res = await api.get("/doctors", { params: { search, page, limit: 10 } });
       setDoctors(res.data.doctors ?? res.data);
+      setPages(res.data.pages ?? 1);
     } catch { toast.error("Failed to load"); }
   }
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { load(); }, [search, page]);
 
   function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
   function openEdit(d) {
@@ -108,6 +113,7 @@ export default function DoctorsPage() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} pages={pages} onChange={setPage} />
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

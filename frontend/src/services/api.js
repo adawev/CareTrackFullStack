@@ -12,9 +12,23 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   res => res,
-  err => {
-    if (err.response?.status === 401) {
+  async err => {
+    const original = err.config;
+    if (err.response?.status === 401 && !original._retry) {
+      original._retry = true;
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        try {
+          const { data } = await api.post("/auth/refresh", { refreshToken });
+          localStorage.setItem("token", data.token);
+          original.headers.Authorization = `Bearer ${data.token}`;
+          return api(original);
+        } catch {
+          // refresh failed — force logout
+        }
+      }
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }

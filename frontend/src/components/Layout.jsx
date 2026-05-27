@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
 import { Stethoscope, Users, Activity, LayoutDashboard, LogOut } from "lucide-react";
 
 const navItems = [
@@ -21,53 +20,54 @@ export default function Layout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-lg font-semibold text-gray-900">CareTrack</h1>
-          <p className="text-xs text-gray-500 mt-1">Medical Record System</p>
+    <div style={{ display: "flex", height: "100vh", backgroundColor: "#f8fafc" }}>
+      <aside style={{ width: "220px", flexShrink: 0, backgroundColor: "#fff", borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "20px 16px 16px", borderBottom: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: "15px", fontWeight: "600", color: "#0f172a" }}>CareTrack</div>
+          <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>Medical Record System</div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(({ path, label, icon: Icon }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                location.pathname === path
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <Icon size={16} />
-              {label}
-            </Link>
-          ))}
+        <nav style={{ flex: 1, padding: "8px" }}>
+          {navItems.map(({ path, label, icon: Icon }) => {
+            const active = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                style={{
+                  display: "flex", alignItems: "center", gap: "8px",
+                  padding: "8px 10px", borderRadius: "6px", marginBottom: "2px",
+                  fontSize: "13px", fontWeight: "500", textDecoration: "none",
+                  backgroundColor: active ? "#f1f5f9" : "transparent",
+                  color: active ? "#0f172a" : "#64748b",
+                }}
+              >
+                <Icon size={15} />
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
-          <div className="mb-3">
-            <p className="text-sm font-medium text-gray-900">{user?.username}</p>
-            <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
+        <div style={{ padding: "12px 16px", borderTop: "1px solid #e2e8f0" }}>
+          <div style={{ fontSize: "13px", fontWeight: "500", color: "#0f172a" }}>{user?.username}</div>
+          <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "capitalize", marginBottom: "10px" }}>{user?.role}</div>
+          <button
             onClick={handleLogout}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px", width: "100%",
+              padding: "7px 10px", borderRadius: "6px", border: "1px solid #e2e8f0",
+              backgroundColor: "#fff", color: "#64748b", fontSize: "13px", cursor: "pointer",
+            }}
           >
-            <LogOut size={14} className="mr-2" />
+            <LogOut size={13} />
             Logout
-          </Button>
+          </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">
-          {children}
-        </div>
+      <main style={{ flex: 1, overflow: "auto", padding: "32px" }}>
+        {children}
       </main>
     </div>
   );
